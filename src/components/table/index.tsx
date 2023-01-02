@@ -11,9 +11,14 @@ import Paper from "@mui/material/Paper";
 import TableContainer from "@mui/material/TableContainer";
 import Grid from "@mui/material/Grid";
 import { Stack } from "@mui/system";
-import Checkbox from "@mui/material/Checkbox";
+import Box from "@mui/material/Box";
+import FormLabel from "@mui/material/FormLabel";
+import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
+import Checkbox from "@mui/material/Checkbox";
 import {
   StyledTableCell,
   StyledTableRow,
@@ -66,14 +71,14 @@ var Heading = [
   ["FirstName", "Last Name", "Age", "Visits", "Status", "Progress"],
 ];
 
-const Headers = [
-  { label: "First Name", key: "firstname" },
-  { label: "Last Name", key: "lastname" },
-  { label: "Age", key: "age" },
-  { label: "Visits", key: "visits" },
-  { label: "Status", key: "status" },
-  { label: "Progress", key: "progress" },
-];
+// const Headers = [
+//   { label: "First Name", key: "firstname" },
+//   { label: "Last Name", key: "lastname" },
+//   { label: "Age", key: "age" },
+//   { label: "Visits", key: "visits" },
+//   { label: "Status", key: "status" },
+//   { label: "Progress", key: "progress" },
+// ];
 
 const downloadExcel = (data: any) => {
   const wb = XLSX.utils.book_new();
@@ -157,6 +162,8 @@ export default function TableComponent({
   const [data, setData] = React.useState<Person[]>(() => makeData(200000));
   const refreshData = () => setData((old) => makeData(200000));
 
+  const [filteredData, setFilteredData] = React.useState<any>([]);
+
   const [{ pageIndex, pageSize }, setPagination] =
     React.useState<PaginationState>({
       pageIndex: 0,
@@ -225,6 +232,14 @@ export default function TableComponent({
     canNextPage: !table.getCanNextPage(),
   };
 
+  useEffect(() => {
+    let fdata = table.getRowModel().rows.map((row) => row.original);
+    // console.log(JSON.stringify(fdata,null,2))
+    setFilteredData(fdata);
+  }, [table.getRowModel().rows]);
+
+  console.log("columnVisibility", columnVisibility);
+
   return (
     <div>
       <div
@@ -248,7 +263,7 @@ export default function TableComponent({
             label="Column Filter"
           />
         </FormGroup>
-        <ColumnVisibilityComponent table={table} />
+        <BasicPopover table={table} />
       </div>
       <div>
         <div>
@@ -588,6 +603,85 @@ function ColumnVisibilityComponent({ table }: any) {
             }
           )}
       </div>
+    </div>
+  );
+}
+
+function ColumnVisibilityComponentV1({ table }: any) {
+  return (
+    <Box sx={{ display: "flex" }}>
+      <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
+        <FormLabel component="legend">Columns</FormLabel>
+        <FormGroup>
+          {table
+            .getAllLeafColumns()
+            .map(
+              (column: {
+                id:
+                  | boolean
+                  | React.ReactElement<
+                      any,
+                      string | React.JSXElementConstructor<any>
+                    >
+                  | React.ReactFragment
+                  | React.Key
+                  | null
+                  | undefined;
+                getIsVisible: () => any;
+                getToggleVisibilityHandler: () => any;
+              }) => {
+                return (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={column.getIsVisible()}
+                        onChange={column.getToggleVisibilityHandler()}
+                        name="gilad"
+                      />
+                    }
+                    label={column.id}
+                  />
+                );
+              }
+            )}
+        </FormGroup>
+      </FormControl>
+    </Box>
+  );
+}
+
+
+function BasicPopover({table}: any) {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
+  return (
+    <div>
+      <Button aria-describedby={id} variant="contained" onClick={handleClick}>
+        Show/Hide Columns
+      </Button>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+          <ColumnVisibilityComponentV1 table={table} />
+      </Popover>
     </div>
   );
 }
