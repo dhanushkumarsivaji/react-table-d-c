@@ -60,7 +60,7 @@ function PaginationWithRowSelection({
     previousPage
   },
   table,
-  options = [10, 25, 50, 2500]
+  options = [10, 25, 50, 2500, 5000]
 }: {
   paginationProps: PaginationProps;
   table: any;
