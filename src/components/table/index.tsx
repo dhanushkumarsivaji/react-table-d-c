@@ -151,8 +151,8 @@ export default function TableComponent({
     []
   );
 
-  const [data, setData] = React.useState<Person[]>(() => makeData(2800));
-  const refreshData = () => setData((old) => makeData(2800));
+  const [data, setData] = React.useState<Person[]>(() => makeData(200000));
+  const refreshData = () => setData((old) => makeData(200000));
 
   const [filteredData, setFilteredData] = React.useState<any>([]);
 
