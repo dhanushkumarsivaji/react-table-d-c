@@ -16,8 +16,9 @@ import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Popover from '@mui/material/Popover';
-import Typography from '@mui/material/Typography';
+import Popover from "@mui/material/Popover";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Checkbox from "@mui/material/Checkbox";
 import {
   StyledTableCell,
@@ -70,15 +71,6 @@ declare module "@tanstack/table-core" {
 var Heading = [
   ["FirstName", "Last Name", "Age", "Visits", "Status", "Progress"],
 ];
-
-// const Headers = [
-//   { label: "First Name", key: "firstname" },
-//   { label: "Last Name", key: "lastname" },
-//   { label: "Age", key: "age" },
-//   { label: "Visits", key: "visits" },
-//   { label: "Status", key: "status" },
-//   { label: "Progress", key: "progress" },
-// ];
 
 const downloadExcel = (data: any) => {
   const wb = XLSX.utils.book_new();
@@ -159,8 +151,8 @@ export default function TableComponent({
     []
   );
 
-  const [data, setData] = React.useState<Person[]>(() => makeData(200000));
-  const refreshData = () => setData((old) => makeData(200000));
+  const [data, setData] = React.useState<Person[]>(() => makeData(2800));
+  const refreshData = () => setData((old) => makeData(2800));
 
   const [filteredData, setFilteredData] = React.useState<any>([]);
 
@@ -552,61 +544,6 @@ function DebouncedInput({
   );
 }
 
-function ColumnVisibilityComponent({ table }: any) {
-  return (
-    <div className="p-2">
-      <div
-        className="inline-block border border-black shadow rounded"
-        style={{ display: "flex" }}
-      >
-        {/* <div className="px-1 border-b border-black">
-        <label>
-          <input
-            {...{
-              type: 'checkbox',
-              checked: table.getIsAllColumnsVisible(),
-              onChange: table.getToggleAllColumnsVisibilityHandler(),
-            }}
-          />{' '}
-          Toggle All
-        </label>
-      </div> */}
-        {table
-          .getAllLeafColumns()
-          .map(
-            (column: {
-              id:
-                | boolean
-                | React.ReactElement<
-                    any,
-                    string | React.JSXElementConstructor<any>
-                  >
-                | React.ReactFragment
-                | React.Key
-                | null
-                | undefined;
-              getIsVisible: () => any;
-              getToggleVisibilityHandler: () => any;
-            }) => {
-              return (
-                <div className="px-1">
-                  <label>
-                    <Checkbox
-                      checked={column.getIsVisible()}
-                      onChange={column.getToggleVisibilityHandler()}
-                      inputProps={{ "aria-label": "controlled" }}
-                    />{" "}
-                    {column.id}
-                  </label>
-                </div>
-              );
-            }
-          )}
-      </div>
-    </div>
-  );
-}
-
 function ColumnVisibilityComponentV1({ table }: any) {
   return (
     <Box sx={{ display: "flex" }}>
@@ -650,9 +587,10 @@ function ColumnVisibilityComponentV1({ table }: any) {
   );
 }
 
-
-function BasicPopover({table}: any) {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+function BasicPopover({ table }: any) {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -663,24 +601,28 @@ function BasicPopover({table}: any) {
   };
 
   const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
+  const id = open ? "simple-popover" : undefined;
 
   return (
     <div>
-      <Button aria-describedby={id} variant="contained" onClick={handleClick}>
-        Show/Hide Columns
-      </Button>
+      <IconButton
+        color="primary"
+        aria-label=" Show/Hide Columns"
+        onClick={handleClick}
+      >
+        <VisibilityOffIcon />
+      </IconButton>
       <Popover
         id={id}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
+          vertical: "bottom",
+          horizontal: "left",
         }}
       >
-          <ColumnVisibilityComponentV1 table={table} />
+        <ColumnVisibilityComponentV1 table={table} />
       </Popover>
     </div>
   );
