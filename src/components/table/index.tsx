@@ -292,7 +292,7 @@ export default function TableComponent({
                   aria-label="outlined primary button group"
                 >
                   <Button onClick={() => downloadExcel(data)}>xlsx</Button>
-                  <Button>CSV</Button>
+                  <Button disabled>CSV</Button>
                 </ButtonGroup>
               </Grid>
             </Grid>
