@@ -305,18 +305,17 @@ export default function TableComponent({
                 "& .MuiTableRow-root:hover": {
                   backgroundColor: "#eff5ff",
                 },
+                 minWidth: 1200
               }}
               stickyHeader
               aria-label="caption table"
               data-testid="table"
             >
-              <TableHead>
+              <TableHead sx={{ display: "table-header-group" }}>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <th key={header.id} colSpan={header.colSpan}>
-                          {header.isPlaceholder ? null : (
                             <>
                               <StyledTableCell
                                 key={header.id}
@@ -367,8 +366,6 @@ export default function TableComponent({
                                 ) : null}
                               </StyledTableCell>
                             </>
-                          )}
-                        </th>
                       );
                     })}
                   </TableRow>
