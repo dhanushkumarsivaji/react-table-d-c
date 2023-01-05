@@ -1,13 +1,10 @@
 import { faker } from '@faker-js/faker'
 
-export type Person = {
-  firstName: string
-  lastName: string
-  age: number
-  visits: number
-  progress: number
-  status: 'relationship' | 'complicated' | 'single'
-  subRows?: Person[]
+export type AccountDataType = {
+  accountId: number
+  accountName: string
+  accountStatus: 'Open' | 'PendingOpen' | 'Closed',
+  productType: 'Equity' | 'Fixed Income' | 'Balanced'
 }
 
 const range = (len: number) => {
@@ -18,28 +15,29 @@ const range = (len: number) => {
   return arr
 }
 
-const newPerson = (): Person => {
+const newPerson = (): AccountDataType => {
   return {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    age: faker.datatype.number(40),
-    visits: faker.datatype.number(1000),
-    progress: faker.datatype.number(100),
-    status: faker.helpers.shuffle<Person['status']>([
-      'relationship',
-      'complicated',
-      'single',
+    accountId: faker.datatype.number(100),
+    accountName: faker.name.fullName(),
+    accountStatus: faker.helpers.shuffle<AccountDataType['accountStatus']>([
+      'Open',
+      'PendingOpen',
+      'Closed',
     ])[0]!,
+    productType: faker.helpers.shuffle<AccountDataType['productType']>([
+        'Equity',
+        'Fixed Income',
+        'Balanced',
+      ])[0]!,
   }
 }
 
 export function makeData(...lens: number[]) {
-  const makeDataLevel = (depth = 0): Person[] => {
+  const makeDataLevel = (depth = 0): AccountDataType[] => {
     const len = lens[depth]!
-    return range(len).map((d): Person => {
+    return range(len).map((d): AccountDataType => {
       return {
         ...newPerson(),
-        subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
       }
     })
   }

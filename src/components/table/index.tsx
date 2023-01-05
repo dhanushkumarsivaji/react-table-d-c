@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect } from "react";
 import * as XLSX from "xlsx";
 import Switch from "@mui/material/Switch";
@@ -7,6 +8,7 @@ import TableCompo from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TableFooter from "@mui/material/TableFooter";
 import Paper from "@mui/material/Paper";
 import TableContainer from "@mui/material/TableContainer";
 import Grid from "@mui/material/Grid";
@@ -57,7 +59,7 @@ import {
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
 
-import { makeData, Person } from "./makeData";
+import { makeData, AccountDataType } from "./makeData";
 
 declare module "@tanstack/table-core" {
   interface FilterFns {
@@ -69,7 +71,7 @@ declare module "@tanstack/table-core" {
 }
 
 var Heading = [
-  ["FirstName", "Last Name", "Age", "Visits", "Status", "Progress"],
+  ["Account Id", "Account Name", "Account Status", "Product Type"],
 ];
 
 const downloadExcel = (data: any) => {
@@ -112,46 +114,34 @@ export default function TableComponent({
   );
   const [globalFilter, setGlobalFilter] = React.useState("");
 
-  const columns = React.useMemo<ColumnDef<Person, any>[]>(
+  const columns = React.useMemo<ColumnDef<AccountDataType, any>[]>(
     () => [
       {
-        accessorKey: "firstName",
+        accessorKey: "accountId",
+        header: () => <span>Account Id</span>,
+        footer: ({ table }) => <h2>Total: {table.getFilteredRowModel().rows.reduce((total, row) => total + row.getValue('accountId'), 0)}</h2>,
+      },
+      {
+        accessorKey: "accountName",
         cell: (info) => info.getValue(),
-        header: () => <span>First Name</span>,
-        footer: (props) => props.column.id,
+        header: () => <span>Account Name</span>,
+        // footer: (props) => props.column.id,
       },
       {
-        accessorFn: (row) => row.lastName,
-        id: "lastName",
-        cell: (info) => info.getValue(),
-        header: () => <span>Last Name</span>,
-        footer: (props) => props.column.id,
+        accessorKey: "accountStatus",
+        header: "Account Status",
+        // footer: (props) => props.column.id,
       },
       {
-        accessorKey: "age",
-        header: () => "Age",
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "visits",
-        header: () => <span>Visits</span>,
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "progress",
-        header: "Profile Progress",
-        footer: (props) => props.column.id,
+        accessorKey: "productType",
+        header: "Product Type",
+        // footer: (props) => props.column.id,
       },
     ],
     []
   );
 
-  const [data, setData] = React.useState<Person[]>(() => makeData(200000));
+  const [data, setData] = React.useState<AccountDataType[]>(() => makeData(200000));
   const refreshData = () => setData((old) => makeData(200000));
 
   const [filteredData, setFilteredData] = React.useState<any>([]);
@@ -305,7 +295,7 @@ export default function TableComponent({
                 "& .MuiTableRow-root:hover": {
                   backgroundColor: "#eff5ff",
                 },
-                 minWidth: 1200
+                minWidth: 1200
               }}
               stickyHeader
               aria-label="caption table"
@@ -316,56 +306,56 @@ export default function TableComponent({
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                            <>
-                              <StyledTableCell
-                                key={header.id}
-                                colSpan={header.colSpan}
+                        <>
+                          <StyledTableCell
+                            key={header.id}
+                            colSpan={header.colSpan}
+                          >
+                            {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                              <TableHeaderRowContainer
+                                center={+header.column.getCanSort()}
+                                {...{
+                                  onClick:
+                                    header.column.getToggleSortingHandler(),
+                                }}
                               >
-                                {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                                  <TableHeaderRowContainer
-                                    center={+header.column.getCanSort()}
-                                    {...{
-                                      onClick:
-                                        header.column.getToggleSortingHandler(),
-                                    }}
-                                  >
-                                    {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                    )}
-                                    {{
-                                      asc: <TableSortingIcon as={ArrowUp} />,
-                                      desc: <TableSortingIcon as={ArrowDown} />,
-                                    }[
-                                      header.column.getIsSorted() as string
-                                    ] ?? (
-                                      <TableSortingUpAndDownIconContainer>
-                                        <TableSortingIcon as={ArrowUp} />
-                                        <TableSortingIcon as={ArrowDown} />
-                                      </TableSortingUpAndDownIconContainer>
-                                    )}
-                                  </TableHeaderRowContainer>
-                                ) : (
-                                  <TableHeaderRowContainer
-                                    center={+header.column.getCanSort()}
-                                  >
-                                    {" "}
-                                    {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                    )}
-                                  </TableHeaderRowContainer>
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
                                 )}
-                                {header.column.getCanFilter() ? (
-                                  <div>
-                                    <Filter
-                                      column={header.column}
-                                      table={table}
-                                    />
-                                  </div>
-                                ) : null}
-                              </StyledTableCell>
-                            </>
+                                {{
+                                  asc: <TableSortingIcon as={ArrowUp} />,
+                                  desc: <TableSortingIcon as={ArrowDown} />,
+                                }[
+                                  header.column.getIsSorted() as string
+                                ] ?? (
+                                    <TableSortingUpAndDownIconContainer>
+                                      <TableSortingIcon as={ArrowUp} />
+                                      <TableSortingIcon as={ArrowDown} />
+                                    </TableSortingUpAndDownIconContainer>
+                                  )}
+                              </TableHeaderRowContainer>
+                            ) : (
+                              <TableHeaderRowContainer
+                                center={+header.column.getCanSort()}
+                              >
+                                {" "}
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                              </TableHeaderRowContainer>
+                            )}
+                            {header.column.getCanFilter() ? (
+                              <div>
+                                <Filter
+                                  column={header.column}
+                                  table={table}
+                                />
+                              </div>
+                            ) : null}
+                          </StyledTableCell>
+                        </>
                       );
                     })}
                   </TableRow>
@@ -392,6 +382,22 @@ export default function TableComponent({
                   );
                 })}
               </TableBody>
+              <TableFooter>
+                {table.getFooterGroups().map((footerGroup) => (
+                  <StyledTableRow key={footerGroup.id}>
+                    {footerGroup.headers.map((header) => (
+                      <StyledTableCell key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                            header.column.columnDef.footer,
+                            header.getContext()
+                          )}
+                      </StyledTableCell>
+                    ))}
+                  </StyledTableRow>
+                ))}
+              </TableFooter>
             </TableCompo>
             <>
               <Stack sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -455,11 +461,10 @@ function Filter({
                 old?.[1],
               ])
             }
-            placeholder={`Min ${
-              column.getFacetedMinMaxValues()?.[0]
+            placeholder={`Min ${column.getFacetedMinMaxValues()?.[0]
                 ? `(${column.getFacetedMinMaxValues()?.[0]})`
                 : ""
-            }`}
+              }`}
             className="w-24 border shadow rounded"
           />
         </div>
@@ -475,11 +480,10 @@ function Filter({
                 value,
               ])
             }
-            placeholder={`Max ${
-              column.getFacetedMinMaxValues()?.[1]
+            placeholder={`Max ${column.getFacetedMinMaxValues()?.[1]
                 ? `(${column.getFacetedMinMaxValues()?.[1]})`
                 : ""
-            }`}
+              }`}
             className="w-24 border shadow rounded"
           />
         </div>
@@ -552,15 +556,15 @@ function ColumnVisibilityComponentV1({ table }: any) {
             .map(
               (column: {
                 id:
-                  | boolean
-                  | React.ReactElement<
-                      any,
-                      string | React.JSXElementConstructor<any>
-                    >
-                  | React.ReactFragment
-                  | React.Key
-                  | null
-                  | undefined;
+                | boolean
+                | React.ReactElement<
+                  any,
+                  string | React.JSXElementConstructor<any>
+                >
+                | React.ReactFragment
+                | React.Key
+                | null
+                | undefined;
                 getIsVisible: () => any;
                 getToggleVisibilityHandler: () => any;
               }) => {
