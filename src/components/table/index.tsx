@@ -1,6 +1,7 @@
 // @ts-nocheck
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
+import { CSVLink } from 'react-csv'
 import Switch from "@mui/material/Switch";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -22,6 +23,9 @@ import Popover from "@mui/material/Popover";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Checkbox from "@mui/material/Checkbox";
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { useNavigate } from 'react-router-dom';
+
 import {
   StyledTableCell,
   StyledTableRow,
@@ -31,6 +35,7 @@ import {
   FilterContainer,
   PaginationLayout,
   SearchLayout,
+  AlignTableCell
 } from "./styles";
 import DebouncedInputComp from "./debouncedInput";
 
@@ -87,6 +92,9 @@ const downloadExcel = (data: any) => {
   XLSX.writeFile(wb, "filename.xlsx");
 };
 
+
+
+
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
   const itemRank = rankItem(row.getValue(columnId), value);
@@ -107,12 +115,24 @@ export default function TableComponent({
   enableColumnFilters: boolean;
   handleChange: any;
 }) {
+  const csvLink = useRef()
   const rerender = React.useReducer(() => ({}), {})[1];
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [globalFilter, setGlobalFilter] = React.useState("");
+
+  const navigate = useNavigate()
+
+  const handleEditClick = (row: any) => {
+    sessionStorage.setItem('row', JSON.stringify(row))
+    navigate('/edit')
+  }
+
+  const getTransactionData = () => {
+    csvLink.current.link.click()
+  }
 
   const columns = React.useMemo<ColumnDef<AccountDataType, any>[]>(
     () => [
@@ -135,6 +155,15 @@ export default function TableComponent({
       {
         accessorKey: "productType",
         header: "Product Type",
+        // footer: (props) => props.column.id,
+      },
+      {
+        accessorKey: "edit",
+        header: () => <AlignTableCell position="center">Edit</AlignTableCell>,
+        enableColumnFilter: false,
+        enableSorting: false,
+        cell: ({ row, getValue }) => <AlignTableCell position="left"><EditOutlinedIcon sx={{ cursor: 'pointer' }} onClick={() => handleEditClick(row.original)}></EditOutlinedIcon></AlignTableCell>,
+
         // footer: (props) => props.column.id,
       },
     ],
@@ -220,7 +249,6 @@ export default function TableComponent({
     setFilteredData(fdata);
   }, [table.getRowModel().rows]);
 
-  console.log("columnVisibility", columnVisibility);
 
   return (
     <div>
@@ -242,7 +270,7 @@ export default function TableComponent({
                 size="small"
               />
             }
-            label="Column Filter"
+            label="Enable Column Filter"
           />
         </FormGroup>
         <BasicPopover table={table} />
@@ -282,8 +310,15 @@ export default function TableComponent({
                   aria-label="outlined primary button group"
                 >
                   <Button onClick={() => downloadExcel(data)}>xlsx</Button>
-                  <Button disabled>CSV</Button>
+                  <Button onClick={() => getTransactionData()}>CSV</Button>
                 </ButtonGroup>
+                <CSVLink
+                  data={data}
+                  filename='transactions.csv'
+                  className='hidden'
+                  ref={csvLink}
+                  target='_blank'
+                />
               </Grid>
             </Grid>
           </FilterContainer>
@@ -462,8 +497,8 @@ function Filter({
               ])
             }
             placeholder={`Min ${column.getFacetedMinMaxValues()?.[0]
-                ? `(${column.getFacetedMinMaxValues()?.[0]})`
-                : ""
+              ? `(${column.getFacetedMinMaxValues()?.[0]})`
+              : ""
               }`}
             className="w-24 border shadow rounded"
           />
@@ -481,8 +516,8 @@ function Filter({
               ])
             }
             placeholder={`Max ${column.getFacetedMinMaxValues()?.[1]
-                ? `(${column.getFacetedMinMaxValues()?.[1]})`
-                : ""
+              ? `(${column.getFacetedMinMaxValues()?.[1]})`
+              : ""
               }`}
             className="w-24 border shadow rounded"
           />

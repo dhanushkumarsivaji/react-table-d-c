@@ -1,17 +1,23 @@
 import React from "react";
+import {Routes, Route} from 'react-router-dom';
 import TableComponent from "./components/table";
+import Edit from "./components/edit";
 
 import "./App.css";
 
 function App() {
-  const [checked, setChecked] = React.useState(true);
+  const [checked, setChecked] = React.useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
   };
   return (
     <div className="App">
-      <TableComponent enableColumnFilters={checked} handleChange={handleChange}/>
+      <Routes>
+         <Route path='/' element={<TableComponent enableColumnFilters={checked} handleChange={handleChange}/>} />
+         <Route path='/edit' element={<Edit/>} />
+      </Routes>
+      
     </div>
   );
 }
