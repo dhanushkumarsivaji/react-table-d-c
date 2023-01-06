@@ -19,15 +19,6 @@ const range = (len: number) => {
 }
 
 
-function getDate() {
-  var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth()+1; 
-  var yyyy = today.getFullYear();
-
-  return dd+'-'+mm+'-'+yyyy
-}
-
 const newData = (): AccountDataType => {
   return {
     accountId: faker.datatype.number(100),
@@ -42,7 +33,9 @@ const newData = (): AccountDataType => {
         'Fixed Income',
         'Balanced',
       ])[0]!,
-      date: moment().format("MM-DD-YYYY")
+      // date: moment().format("MM-DD-YYYY")
+      date: moment(new Date(+(new Date()) - Math.floor(Math.random()*10000000000)))
+      .format('MM-DD-YYYY')
   }
 }
 

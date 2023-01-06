@@ -25,6 +25,8 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Checkbox from "@mui/material/Checkbox";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { useNavigate } from 'react-router-dom';
+import "jspdf-autotable";
+import jsPDF from "jspdf";
 
 import {
   StyledTableCell,
@@ -175,10 +177,10 @@ export default function TableComponent({
     []
   );
 
-  const [data, setData] = React.useState<AccountDataType[]>(() => makeData(200));
+  const [data, setData] = React.useState<AccountDataType[]>(() => makeData(2500));
 
   
-  const refreshData = () => setData((old) => makeData(200));
+  const refreshData = () => setData((old) => makeData(2500));
 
   const [filteredData, setFilteredData] = React.useState<any>([]);
 
@@ -256,6 +258,68 @@ export default function TableComponent({
     setFilteredData(fdata);
   }, [table.getRowModel().rows]);
 
+  const print = (data) => {
+    const pdf = new jsPDF("p", "pt", "a4");
+    const columns = ["Account Id", "Account Name", "Account Status", "Product Type", 'Date']
+  
+    var rows = data.map(Object.values);
+  
+    // var rows = [];
+  
+    // for (let i = 0; i < json.length; i++) {
+    //   /*for (var key in json[i]) {
+    //     var temp = [key, json[i][key]];
+    //     rows.push(temp);
+    //   }*/
+    //   var temp = [
+    //     json[i].id,
+    //     json[i].start.split("T")[0],
+    //     json[i].duration,
+    //     json[i].name,
+    //     json[i].project,
+    //     json[i].task,
+    //     json[i].comment
+    //   ];
+    //   rows.push(temp);
+    // }
+
+    // pdf.text(235, 40, "Tabla de Prestamo");
+    pdf.autoTable(columns, rows, 
+    //   {
+    //   startY: 65,
+    //   theme: "grid",
+    //   styles: {
+    //     font: "times",
+    //     halign: "center",
+    //     cellPadding: 3.5,
+    //     lineWidth: 0.5,
+    //     lineColor: [0, 0, 0],
+    //     textColor: [0, 0, 0]
+    //   },
+    //   headStyles: {
+    //     textColor: [0, 0, 0],
+    //     fontStyle: "normal",
+    //     lineWidth: 0.5,
+    //     lineColor: [0, 0, 0],
+    //     fillColor: [166, 204, 247]
+    //   },
+    //   alternateRowStyles: {
+    //     fillColor: [212, 212, 212],
+    //     textColor: [0, 0, 0],
+    //     lineWidth: 0.5,
+    //     lineColor: [0, 0, 0]
+    //   },
+    //   rowStyles: {
+    //     lineWidth: 0.5,
+    //     lineColor: [0, 0, 0]
+    //   },
+    //   tableLineColor: [0, 0, 0]
+    // }
+    );
+    // console.log(pdf.output("datauristring"));
+    pdf.save("output");
+  };
+
 
   return (
     <div>
@@ -318,7 +382,7 @@ export default function TableComponent({
                 >
                   <Button onClick={() => downloadExcel(data)}>xlsx</Button>
                   <Button onClick={() => getTransactionData()}>CSV</Button>
-                  <Button onClick={() => getTransactionData()}>PDF</Button>
+                  <Button onClick={() => print(data)}>PDF</Button>
 
                 </ButtonGroup>
                 <CSVLink
