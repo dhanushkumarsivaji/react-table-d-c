@@ -1,11 +1,12 @@
 //@ts-nocheck
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
-import Input from '@mui/material/Input';
+import { useNavigate } from 'react-router-dom';
+import Input from "@mui/material/Input";
 import { useForm, Controller } from "react-hook-form";
 import { merge, isEmpty } from "lodash";
 
@@ -45,48 +46,49 @@ const myHelper = {
   },
 };
 
+export default function FormFields({
+  data = {
+    accountId: "",
+    accountName: "",
+    accountStatus: "",
+    productType: "",
+  },
+}: any) {
 
-export default function FormFields({ data={
-    accountId: '',
-    accountName: '',
-    accountStatus: '',
-    productType: '',
-  } }: any) {
-
+  const navigate = useNavigate();
 
   const { control, formState, getValues, watch, register, handleSubmit } =
     useForm({
-      defaultValues: useMemo(() => data, [data]) ,
+      defaultValues: useMemo(() => data, [data]),
     });
   const { errors } = formState;
 
   watch();
 
-
   const onSubmit = (data: any) => alert(JSON.stringify(data, null, 4));
 
   return (
-    <Box sx={{ m: 1,maxWidth: '500px' }}>
+    <Box sx={{ m: 1, maxWidth: "500px" }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3}>
           <Grid item xs={6}>
             <Controller
-              control={control}
               name="accountName"
+              control={control}
               defaultValue=""
-              rules={{
-                required: true,
-              }}
-              render={({ field, fieldState: { error } }) => (
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
                 <TextField
-                  {...field}
-                  type="text"
-                  fullWidth
                   label="Account Name"
-                  error={error !== undefined}
-                  helperText={error ? myHelper.accountName[error.type] : ""}
+                  value={value}
+                  onChange={onChange}
+                  error={!!error}
+                  helperText={error ? error.message : null}
                 />
               )}
+              rules={{ required: myHelper["accountName"].required }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -127,9 +129,17 @@ export default function FormFields({ data={
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12}>
-            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-              submit
+          <Grid item xs={6}>
+            <Button variant="outlined" onClick={() => navigate('/')} sx={{ mt: 3 }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3, ml:3 }}
+            >
+              Submit
             </Button>
           </Grid>
           {/* <pre>{JSON.stringify(getValues(), null, 4)}</pre> */}

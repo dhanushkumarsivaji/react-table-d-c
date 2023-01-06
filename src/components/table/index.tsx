@@ -13,7 +13,7 @@ import TableFooter from "@mui/material/TableFooter";
 import Paper from "@mui/material/Paper";
 import TableContainer from "@mui/material/TableContainer";
 import Grid from "@mui/material/Grid";
-import { Stack } from "@mui/system";
+import { getValue, Stack } from "@mui/system";
 import Box from "@mui/material/Box";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
@@ -76,7 +76,7 @@ declare module "@tanstack/table-core" {
 }
 
 var Heading = [
-  ["Account Id", "Account Name", "Account Status", "Product Type"],
+  ["Account Id", "Account Name", "Account Status", "Product Type", 'Date'],
 ];
 
 const downloadExcel = (data: any) => {
@@ -158,6 +158,11 @@ export default function TableComponent({
         // footer: (props) => props.column.id,
       },
       {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({getValue}) => getValue()
+      },
+      {
         accessorKey: "edit",
         header: () => <AlignTableCell position="center">Edit</AlignTableCell>,
         enableColumnFilter: false,
@@ -170,8 +175,10 @@ export default function TableComponent({
     []
   );
 
-  const [data, setData] = React.useState<AccountDataType[]>(() => makeData(200000));
-  const refreshData = () => setData((old) => makeData(200000));
+  const [data, setData] = React.useState<AccountDataType[]>(() => makeData(200));
+
+  
+  const refreshData = () => setData((old) => makeData(200));
 
   const [filteredData, setFilteredData] = React.useState<any>([]);
 
@@ -311,6 +318,8 @@ export default function TableComponent({
                 >
                   <Button onClick={() => downloadExcel(data)}>xlsx</Button>
                   <Button onClick={() => getTransactionData()}>CSV</Button>
+                  <Button onClick={() => getTransactionData()}>PDF</Button>
+
                 </ButtonGroup>
                 <CSVLink
                   data={data}
